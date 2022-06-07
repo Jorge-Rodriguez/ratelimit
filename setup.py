@@ -8,13 +8,13 @@ def readme():
         return infile.read()
 
 setup(
-    name='ratelimit',
+    name='tiriel-ratelimit',
     version=ratelimit.__version__,
     description='API rate limit decorator',
     long_description=readme().strip(),
-    author='Tomas Basham',
-    author_email='me@tomasbasham.co.uk',
-    url='https://github.com/tomasbasham/ratelimit',
+    author='Jorge Rodriguez',
+    author_email='jorge.rodriguez@tiriel.eu',
+    url='https://github.com/Jorge-Rodriguez/ratelimit',
     license='MIT',
     packages=['ratelimit'],
     install_requires=[],
