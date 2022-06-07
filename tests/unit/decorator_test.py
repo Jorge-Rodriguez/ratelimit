@@ -18,6 +18,13 @@ class TestDecorator(unittest.TestCase):
         '''
         self.count += 1
 
+    @limits(calls=1, period=10, clock=clock, wrap_exceptions=(RuntimeError,))
+    def increment_wrapped_exception(self):
+        '''
+        Raise RuntimeError exception.
+        '''
+        raise RuntimeError('Wrap me, please!')
+
     def setUp(self):
         self.count = 0
         clock.increment(10)
@@ -42,3 +49,6 @@ class TestDecorator(unittest.TestCase):
         self.increment_no_exception()
 
         self.assertEqual(self.count, 1)
+
+    def test_wrapped_exception(self):
+        self.assertRaises(RateLimitException, self.increment_wrapped_exception)

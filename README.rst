@@ -122,6 +122,20 @@ cost of halting the thread.
             raise Exception('API response: {}'.format(response.status_code))
         return response
 
+Additionally a collection of exception classes can be passed as an argument to
+the constructor. If the wrapped function raises any of these exceptions they
+will we wrapped in a ``ratelimit.RateLimitException``. This allows the usage
+of the ``sleep_and_retry`` decorator functionality on arbitrary exceptions.
+
+.. code:: python
+
+    from ratelimit import limits, sleep_and_retry
+
+    @sleep_and_retry
+    @limits(calls=1, period=10, wrap_exceptions=(RuntimeError, IOError))
+    def raise_exception():
+        raise RuntimeError("Wrapped in RateLimitException")
+        
 License
 -------
 

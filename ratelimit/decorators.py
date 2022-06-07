@@ -19,7 +19,7 @@ class RateLimitDecorator(object):
     '''
     Rate limit decorator class.
     '''
-    def __init__(self, calls=15, period=900, clock=now(), raise_on_limit=True):
+    def __init__(self, calls=15, period=900, clock=now(), raise_on_limit=True, wrap_exceptions=()):
         '''
         Instantiate a RateLimitDecorator with some sensible defaults. By
         default the Twitter rate limiting window is respected (15 calls every
@@ -34,6 +34,7 @@ class RateLimitDecorator(object):
         self.period = period
         self.clock = clock
         self.raise_on_limit = raise_on_limit
+        self.wrapped_exceptions = wrap_exceptions
 
         # Initialise the decorator state.
         self.last_reset = clock()
@@ -81,8 +82,14 @@ class RateLimitDecorator(object):
                     if self.raise_on_limit:
                         raise RateLimitException('too many calls', period_remaining)
                     return
-
-            return func(*args, **kargs)
+            try:
+                return func(*args, **kargs)
+            except Exception as exception:
+                if exception.__class__ in self.wrapped_exceptions:
+                    with self.lock:
+                        period_remaining = self.__period_remaining()
+                        raise RateLimitException(str(exception), period_remaining)
+                raise exception
         return wrapper
 
     def __period_remaining(self):
