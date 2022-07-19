@@ -115,6 +115,7 @@ class SleepAndRetryDecorator(object):
 
     def __init__(self, max_retries=5):
         self.max_retries = max_retries
+        self.retries = 0
 
     def __call__(self, func):
         """
@@ -135,11 +136,13 @@ class SleepAndRetryDecorator(object):
             :param args: non-keyword variable length argument list to the decorated function.
             :param kargs: keyworded variable length argument list to the decorated function.
             """
-            while self.max_retries > 0:
-                self.max_retries -= 1
+            while self.retries < self.max_retries:
                 try:
-                    return func(*args, **kargs)
+                    result = func(*args, **kargs)
+                    self.retries = 0
+                    return result
                 except RateLimitException as exception:
+                    self.retries += 1
                     time.sleep(exception.period_remaining)
 
         return wrapper
